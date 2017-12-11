@@ -7,11 +7,12 @@
 Node8 + Koa2 + Mustache
 
 ## 特点
-* route默认走controller，可自定义
-* 不用手动render
-* 指定非200的status后，不再执行后续代码
-* controller/action/view不区分大小写
-* 通过 ctx.get(key) 获取header/path/query/post参数
+* 高性能：不借助任何缓存，i5单核CPU可达到4800的QPS
+* route默认走controller:name+action:name，可自定义
+* 支持自动render和手动render：调用 this.render(viewName) 参数可选
+* 指定status后（非100），不再执行后续代码
+* controller/action/view 不区分大小写
+* 通过 this.get(key) 获取header/path/query/post参数，不区分大小写
 
 ## 使用
 1、在Node启动文件中加入以下代码：
