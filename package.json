@@ -1,5 +1,5 @@
 {
-    "name": "eagle",
+    "name": "node-eagle",
     "version": "0.1.0",
     "description": "基于Node的高性能MVC框架",
     "main": "index.js",
