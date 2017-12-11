@@ -7,7 +7,7 @@
 Node8 + Koa2 + Mustache
 
 ## 特点
-* 高性能：不借助任何缓存，i5单核CPU可达到4800的QPS
+* 高性能：不借助任何缓存，i5单核CPU可达到5400的QPS
 * route默认走controller:name+action:name，可自定义
 * 支持自动render和手动render：调用 this.render(viewName) 参数可选
 * 指定status后（非100），不再执行后续代码
