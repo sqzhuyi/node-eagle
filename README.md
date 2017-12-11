@@ -13,6 +13,27 @@ Node8 + Koa2 + Mustache
 * 指定status后（非100），不再执行后续代码
 * controller/action/view 不区分大小写
 * 通过 this.get(key) 获取header/path/query/post参数，不区分大小写
+* 内容渲染采用Mustache模板引擎
+* 页面嵌套、引用手动实现，支持常用语法：extends/include/block，如下：
+
+_layout.html
+
+    <body>
+        {% include "./_header.html" %}
+        {% block body %}
+        <div>default content</div>
+        {% endblock %}
+        {% include "./_footer.html" %}
+    </body>
+
+index.html
+
+    {% extends "../shared/_layout.html" %}
+    {% block body %}
+    <div class="body">
+        {{{ content }}}
+    </div>
+    {% endblock %}
 
 ## 使用
 1、在Node启动文件中加入以下代码：
