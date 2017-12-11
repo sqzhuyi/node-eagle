@@ -11,8 +11,15 @@ var init = require('./lib/init');
 
 module.exports = function (app, config) {
     // 判断app是否为koa类型-
+    if(!app.use){
+        throw 'the first argument "app" must be a koa instance';
+    }
+    if(!config){
+        config = {};
+    }
 
     config._root = process.cwd();
+    
     getControllers(config);
     getViews(config);
     
