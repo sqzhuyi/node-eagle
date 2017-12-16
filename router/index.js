@@ -49,7 +49,7 @@ async function doAction(ctx) {
     let ctl = config.controllers[ctx.controller[0]];
     let action = ctl ? ctl[ctx.controller[1]] : null;
 
-    let onPreLoad = ctx['onPreLoad'] || ctl['onPreLoad'];
+    let onPreLoad = ctl['onPreLoad'] || ctx['onPreLoad'];
     if (onPreLoad) {
         await onPreLoad.call(ctx, ctx.scope);
     }
@@ -61,7 +61,7 @@ async function doAction(ctx) {
     if (ctx.status === 100) {
         await action.call(ctx, ctx.scope);
     }
-    let onPreRender = ctx['onPreRender'] || ctl['onPreRender'];
+    let onPreRender = ctl['onPreRender'] || ctx['onPreRender'];
     if (ctx.status === 100 && onPreRender) {
         await onPreRender.call(ctx, ctx.scope);
     }
