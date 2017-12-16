@@ -15,8 +15,9 @@ module.exports = function (app, config) {
         config = {};
     }
 
-    config._root = process.cwd();
-    
+    if(!config.root){
+        config.root = process.cwd();
+    }
     getControllers(config);
     getViews(config);
     
@@ -29,7 +30,8 @@ module.exports = function (app, config) {
         if (ctx) {
             ctx.status = 500;
         }
-        console.log(err);
+        console.log(ctx.url);
+        console.log(err.stack);
     });
 
     app.use(bodyParser());

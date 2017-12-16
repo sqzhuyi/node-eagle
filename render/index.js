@@ -1,64 +1,10 @@
 const path = require('path');
-const mustache = require('mustache');
-const fs = require('fs');
+const cache = require('../lib/pageCache');
+const renderHtml = require('./renderHtml');
+const renderJson = require('./renderJson');
 
-const regs = {
-    extends: /\{\%\s*extends\s*["']([^"']+)["']\s*\%\}/im,
-    include: /\{\%\s*include\s*["']([^"']+)["']\s*\%\}/igm,
-    block: /\{\%\s*block\s*([^\s\}]+)\s*\%\}([\s\S]*?)\{\%\s*endblock\s*\%\}/igm
-};
 var ctx = null;
 var config = null;
-
-function renderHtml(viewPath) {
-
-    let html = getRenderResult(viewPath);
-    // 检查是否使用了layout
-    let mat = regs.extends.exec(html);
-    if (mat && mat.length > 1) {
-        let vp = path.join(viewPath, '../', mat[1]);
-        // 获取渲染后的layout
-        let layout = getRenderResult(vp);
-        // 获取view里的模块数据-
-        let blocks = {};
-        html = html.replace(regs.block, function (a, name, con) {
-            if (!blocks[name]) {
-                blocks[name] = con;
-            } else {
-                blocks[name] += con;
-            }
-            return a;
-        });
-
-        html = layout.replace(regs.block, function (a, name, con) {
-            return blocks[name] || con;
-        });
-    }
-
-    ctx.body = html;
-    ctx.status = 200;
-    ctx.set('content-type', 'text/html; charset=utf-8');
-}
-
-function getRenderResult(viewPath) {
-    let html = config.views[viewPath.toLowerCase()];
-    if (!html) return '';
-    // mustache
-    html = mustache.render(html, ctx.scope);
-    // include
-    html = html.replace(regs.include, function (a, b) {
-        let vp = path.join(viewPath, '../', b);
-        return getRenderResult(vp);
-    });
-
-    return html;
-}
-
-function renderJson(json) {
-    ctx.body = json;
-    ctx.status = 200;
-    ctx.set('content-type', 'application/json; charset=utf-8');
-}
 
 // 统一的render函数-
 async function render(viewOrJson) {
@@ -68,19 +14,20 @@ async function render(viewOrJson) {
     }
     // 如果是json数据，则走json输出-
     if (typeof viewOrJson === 'object' || viewOrJson[0] === '{' || viewOrJson[0] === '[') {
-        renderJson(viewOrJson);
+        renderJson(ctx, viewOrJson);
     } else {
         let viewPath = viewOrJson;
         if (!viewPath.includes('/') && !viewPath.includes('\\')) {
-            viewPath = path.join(config._root, 'views', ctx.controller[0], viewPath + '.html');
+            viewPath = path.join(config.root, 'views', ctx.controller[0], viewPath + '.html');
         }
         // 不存在view文件，则输出json
         if (!config.views[viewPath.toLowerCase()]) {
-            renderJson(ctx.scope);
+            renderJson(ctx, ctx.scope);
         } else {
-            renderHtml(viewPath);
+            renderHtml(ctx, config, viewPath);
         }
     }
+    cache.set(ctx);
 }
 
 module.exports = async function (_config) {
