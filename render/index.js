@@ -1,5 +1,5 @@
 const path = require('path');
-const cache = require('../lib/pageCache');
+const pageCache = require('../lib/pageCache');
 const renderHtml = require('./renderHtml');
 const renderJson = require('./renderJson');
 
@@ -27,7 +27,7 @@ async function render(viewOrJson) {
             renderHtml(ctx, config, viewPath);
         }
     }
-    cache.set(ctx);
+    pageCache.set(ctx);
 }
 
 module.exports = async function (_config) {

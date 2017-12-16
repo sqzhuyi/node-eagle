@@ -1,5 +1,5 @@
 
-const cache = require('../lib/pageCache');
+const pageCache = require('../lib/pageCache');
 // 获取当前url对应的controller
 const getController = require('./getController');
 // 执行controller对应的action
@@ -18,7 +18,7 @@ module.exports = async function (config) {
 
     ctx.controller = getController(ctx, config);
 
-    if(cache.get(ctx)){
+    if(pageCache.get(ctx)){
         return;
     }
 
