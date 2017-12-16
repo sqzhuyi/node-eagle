@@ -1,6 +1,6 @@
 {
     "name": "node-eagle",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "description": "基于Node的高性能MVC框架",
     "main": "index.js",
     "license": "MIT",
