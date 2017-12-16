@@ -49,17 +49,33 @@ async function doAction(ctx) {
     let ctl = config.controllers[ctx.controller[0]];
     let action = ctl ? ctl[ctx.controller[1]] : null;
 
-    if(!action){
+    let onPreLoad = ctl['onPreLoad'] || ctx['onPreLoad'];
+    if (onPreLoad) {
+        await onPreLoad.call(ctx, ctx.scope);
+    }
+
+    if (!action) {
         ctx.status = 404;
         return;
     }
-    await action.call(ctx, ctx.scope);
     if (ctx.status === 100) {
-        if(ctx.body) {
+        await action.call(ctx, ctx.scope);
+    }
+    let onPreRender = ctl['onPreRender'] || ctx['onPreRender'];
+    if (ctx.status === 100 && onPreRender) {
+        await onPreRender.call(ctx, ctx.scope);
+    }
+
+    if (ctx.status === 100) {
+        if (ctx.body) {
             ctx.status = 200;
-        }else{
+        } else {
             await ctx.render();
         }
+    }
+    let onRenderComplete = ctl['onRenderComplete'] || ctx['onRenderComplete'];
+    if (onRenderComplete) {
+        await onRenderComplete.call(ctx, ctx.scope);
     }
 }
 // 渲染错误页面-
@@ -88,7 +104,7 @@ module.exports = async function (config) {
     var ctx = this;
 
     ctx.controller = getController(ctx, config.router || []);
-    
+
     if (ctx.status === 100) {
         await doAction(ctx);
     }
