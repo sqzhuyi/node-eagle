@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+
+// 获取当前url对应的controller
 function getController(ctx, router) {
     let path = ctx.path,
         params = ctx.params || {};
@@ -37,44 +39,61 @@ function getController(ctx, router) {
     ctx.params = params;
     return ctl;
 }
-module.exports = async function (config) {
-    var ctx = this;
-    if (ctx.status !== 100) return;
-
-    ctx.controller = getController(ctx, config.router || []);
+// 判断当前请求是否已经有了response
+function isDone(ctx) {
+    return ctx.body || (ctx.status >= 200 && ctx.status < 400);
+}
+// 执行controller对应的action
+async function doAction(ctx) {
 
     let ctl = config.controllers[ctx.controller[0]];
     let action = ctl ? ctl[ctx.controller[1]] : null;
 
-    if (action) {
-        await action.call(ctx, ctx.scope);
-        if (ctx.status === 100) {
+    if(!action){
+        ctx.status = 404;
+        return;
+    }
+    await action.call(ctx, ctx.scope);
+    if (ctx.status === 100) {
+        if(ctx.body) {
+            ctx.status = 200;
+        }else{
             await ctx.render();
         }
-    } else {
-        ctx.status = 404;
     }
-    // 还没有正确的response
-    if (![200, 301, 302].includes(ctx.status) && !ctx.body) {
-        let fn1 = `${path.sep}error${path.sep}${ctx.status}.html`,
-            find1 = false,
-            fn2 = `${path.sep}error${path.sep}other.html`,
-            find2 = false;
+}
+// 渲染错误页面-
+async function renderError(ctx) {
+    let fn1 = `${path.sep}error${path.sep}${ctx.status}.html`,
+        find1 = false,
+        fn2 = `${path.sep}error${path.sep}other.html`,
+        find2 = false;
 
-        for (let n in config.views) {
-            if (n.includes(fn1)) {
-                fn1 = n;
-                find1 = true;
-            }else if (n.includes(fn2)) {
-                fn2 = n;
-                find2 = true;
-            }
+    for (let n in config.views) {
+        if (n.includes(fn1)) {
+            fn1 = n;
+            find1 = true;
+        } else if (n.includes(fn2)) {
+            fn2 = n;
+            find2 = true;
         }
-        if (find1) {
-            await ctx.render(fn1);
-        } else if (find2) {
-            await ctx.render(fn2);
-        }
+    }
+    if (find1) {
+        await ctx.render(fn1);
+    } else if (find2) {
+        await ctx.render(fn2);
+    }
+}
+module.exports = async function (config) {
+    var ctx = this;
+
+    ctx.controller = getController(ctx, config.router || []);
+    
+    if (ctx.status === 100) {
+        await doAction(ctx);
+    }
+    if (!isDone(ctx)) {
+        await renderError(ctx);
     }
 
 };

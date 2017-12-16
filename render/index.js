@@ -1,5 +1,6 @@
 const path = require('path');
 const mustache = require('mustache');
+const fs = require('fs');
 
 const regs = {
     extends: /\{\%\s*extends\s*["']([^"']+)["']\s*\%\}/im,
@@ -9,12 +10,8 @@ const regs = {
 var ctx = null;
 var config = null;
 
-function renderHtml(view) {
+function renderHtml(viewPath) {
 
-    let viewPath = view;
-    if (!view.includes('/') && !view.includes('\\')) {
-        viewPath = path.join(config._root, 'views', ctx.controller[0], view + '.html');
-    }
     let html = getRenderResult(viewPath);
     // 检查是否使用了layout
     let mat = regs.extends.exec(html);
@@ -73,7 +70,16 @@ async function render(viewOrJson) {
     if (typeof viewOrJson === 'object' || viewOrJson[0] === '{' || viewOrJson[0] === '[') {
         renderJson(viewOrJson);
     } else {
-        renderHtml(viewOrJson);
+        let viewPath = viewOrJson;
+        if (!viewPath.includes('/') && !viewPath.includes('\\')) {
+            viewPath = path.join(config._root, 'views', ctx.controller[0], viewPath + '.html');
+        }
+        // 不存在view文件，则输出json
+        if (!config.views[viewPath.toLowerCase()]) {
+            renderJson(ctx.scope);
+        } else {
+            renderHtml(viewPath);
+        }
     }
 }
 
