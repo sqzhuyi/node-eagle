@@ -16,7 +16,7 @@ Node8 + Koa2 + Mustache
 * 每个请求支持以下事件：onPreLoad/onPreRender/onRenderComplete，可以挂在controller跟action并列，也可以注册到context上，pre事件优先取controller，complete事件优先取context注册的事件
 * 支持页面缓存，router配置中增加代码：cache: function(ctx); 返回正整数则缓存，单位秒
 * 支持单模块视图缓存，view文件添加标签：{% view cache="60" %} 单位秒
-* 内容渲染采用Mustache模板引擎
+* 内容渲染默认采用Mustache模板引擎，可自定义渲染函数
 * 页面嵌套、引用手动实现，支持常用语法：extends/include/block，如下：
 
 _layout.html

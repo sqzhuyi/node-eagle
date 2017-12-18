@@ -1,4 +1,3 @@
-
 const path = require('path');
 const mustache = require('mustache');
 const Cache = require('lru-cache');
@@ -17,6 +16,7 @@ const regs = {
 };
 
 var views = [];
+var render = null;
 
 function getRenderResult(viewPath, scope) {
     viewPath = viewPath.toLowerCase();
@@ -39,9 +39,11 @@ function getRenderResult(viewPath, scope) {
         content = myCache.get(key);
     }
     if (!content) {
-        // mustache
-        content = mustache.render(html, scope);
-
+        if (render) {
+            content = render(html, scope);
+        } else {
+            content = mustache.render(html, scope);
+        }
         if (expires > 0) {
             myCache.set(key, content, expires);
         }
@@ -58,6 +60,7 @@ function getRenderResult(viewPath, scope) {
 module.exports = function (ctx, config, viewPath) {
 
     views = config.views;
+    render = config.render;
 
     let html = getRenderResult(viewPath, ctx.scope);
     // 检查是否使用了layout
