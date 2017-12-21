@@ -27,7 +27,7 @@ module.exports = function (ctx, config) {
     }
     let arr = path.split('/');
     let ctl = [arr[1], 'index'];
-    if (arr.length >= 2) ctl[1] = arr[2];
+    if (arr.length > 2) ctl[1] = arr[2];
 
     // 获取path中的参数-
     for (let i = 3; i < arr.length; i++) {

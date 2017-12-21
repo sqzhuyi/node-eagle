@@ -2,7 +2,7 @@ const mustache = require('mustache');
 
 module.exports = {
     host: '127.0.0.1',
-    port: 8080,
+    port: 8081,
     // 可选
     root: __dirname,
     // 可选
