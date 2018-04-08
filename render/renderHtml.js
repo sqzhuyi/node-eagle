@@ -12,11 +12,13 @@ const regs = {
     viewCache: /cache=["'](\d+)["']/i,
     extends: /\{%\s*extends\s*["']([^"']+)["']\s*%\}/im,
     include: /\{%\s*include\s*["']([^"']+)["']\s*%\}/igm,
-    block: /\{%\s*block\s*([^\s\}]+)\s*%\}([\s\S]*?)\{%\s*endblock\s*%\}/igm
+    block: /\{%\s*block\s*([^\s\}]+)\s*%\}([\s\S]*?)\{%\s*endblock\s*%\}/igm,
+    raw: /\{%\s*raw\s*%\}([\s\S]*?)\{%\s*endraw\s*%\}/igm
 };
 
 var views = [];
 var render = null;
+var context = null;
 
 function getRenderResult(viewPath, scope) {
     viewPath = viewPath.toLowerCase();
@@ -35,10 +37,19 @@ function getRenderResult(viewPath, scope) {
 
     let content, key;
     if (expires > 0) {
-        key = utils.getCtxCacheKey(ctx, viewPath);
+        key = utils.getCtxCacheKey(context, viewPath);
         content = myCache.get(key);
     }
     if (!content) {
+        // 渲染之前取出raw
+        // let raws = [];
+        // html = html.replace(regs.raw, function(a,b){
+        //     raws.push(b);
+        //     return `[[[raw=${raws.length-1}]]]`;
+        // });
+        html = html.replace(regs.raw, function(a,b){
+            return `{{=[[[ ]]]=}}${b}[[[={{ }}=]]]`;
+        });
         if (render) {
             content = render(html, scope);
         } else {
@@ -47,6 +58,9 @@ function getRenderResult(viewPath, scope) {
         if (expires > 0) {
             myCache.set(key, content, expires);
         }
+        // raws.forEach(function(s, i){
+        //     content = content.replace(`[[[raw=${i}]]]`, s);
+        // });
     }
     // include
     content = content.replace(regs.include, function (a, b) {
@@ -59,6 +73,7 @@ function getRenderResult(viewPath, scope) {
 
 module.exports = function (ctx, config, viewPath) {
 
+    context = ctx;
     views = config.views;
     render = config.render;
 

@@ -9,4 +9,7 @@
     {% include "./_banner.html" %}
     <div>{{{ content }}}</div>
 </div>
+{% raw %}
+<p>这里不进行渲染{{ name }}</p>
+{% endraw %}
 {% endblock %}
