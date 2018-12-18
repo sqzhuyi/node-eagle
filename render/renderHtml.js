@@ -1,7 +1,7 @@
 const path = require('path');
 const mustache = require('mustache');
 const Cache = require('lru-cache');
-const myCache = Cache({
+const myCache = new Cache({
     max: 3000,
     maxAge: 60 * 1000
 });
@@ -30,7 +30,7 @@ function getRenderResult(viewPath, scope) {
     html = html.replace(regs.view, function (a, b) {
         let mat = regs.viewCache.exec(b);
         if (mat && mat.length > 1) {
-            expires = parseInt(mat[1], 10);
+            expires = parseInt(mat[1], 10) * 1000;
         }
         return '';
     });
