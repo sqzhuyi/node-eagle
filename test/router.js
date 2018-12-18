@@ -12,4 +12,10 @@ module.exports = [{
     cache: function(ctx){
         return !ctx.state.user ? 60 : 0;
     }
+}, {
+    match: /^\/home\/index/i,
+    controller: 'home.index',
+    cache: function(ctx) {
+        return 5;
+    }
 }];
