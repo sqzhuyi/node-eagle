@@ -1,6 +1,6 @@
 {
     "name": "node-eagle",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "description": "基于Node的高性能MVC框架",
     "author": "朱乙 <sqzhuyi@gmail.com>",
     "main": "index.js",
